@@ -19,7 +19,7 @@ func NewReceive(param *param.Receive) *Receive {
 }
 
 func (r *Receive) Do(ctx context.Context) (out *output.Receive, err error) {
-	if url, ue := r.param.Url(ctx, r.param.Label); nil != ue {
+	if url, ue := r.param.Url(ctx, r.param.Base); nil != ue {
 		err = ue
 	} else {
 		out, err = r.do(ctx, url)

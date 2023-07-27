@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/goexl/sqs/internal/callback"
-	"github.com/goexl/sqs/internal/param/internal"
+	"github.com/goexl/sqs/internal/internal"
 	"github.com/goexl/sqs/internal/transcoder"
 )
 

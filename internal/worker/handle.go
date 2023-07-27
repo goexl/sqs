@@ -28,7 +28,7 @@ func NewHandle(receive *param.Receive, param *param.Handle) *Handle {
 }
 
 func (h *Handle) Start(ctx context.Context, handler message.Handler[any]) (err error) {
-	if url, ue := h.receive.Url(ctx, h.receive.Label); nil != ue {
+	if url, ue := h.receive.Url(ctx, h.receive.Base); nil != ue {
 		err = ue
 	} else {
 		err = h.do(ctx, url, handler)

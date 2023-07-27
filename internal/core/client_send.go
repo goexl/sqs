@@ -5,5 +5,5 @@ import (
 )
 
 func (c *Client) Send() *builder.Send {
-	return builder.NewSend(c.sqs.SendMessage, c.Url)
+	return builder.NewSend(c.sqs.SendMessage, c.url)
 }

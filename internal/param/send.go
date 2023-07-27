@@ -5,7 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/goexl/sqs/internal/callback"
-	"github.com/goexl/sqs/internal/param/internal"
+	"github.com/goexl/sqs/internal/internal"
 	"github.com/goexl/sqs/internal/transcoder"
 )
 

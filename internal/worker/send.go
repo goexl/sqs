@@ -20,7 +20,7 @@ func NewSend(param *param.Send) *Send {
 }
 
 func (s *Send) Do(ctx context.Context) (out *output.Send, err error) {
-	if url, ue := s.param.Url(ctx, s.param.Label); nil != ue {
+	if url, ue := s.param.Url(ctx, s.param.Base); nil != ue {
 		err = ue
 	} else {
 		out, err = s.do(ctx, url)
