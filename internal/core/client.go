@@ -20,7 +20,7 @@ func NewClient(param *param.Client) (client *Client) {
 	client.urls = new(sync.Map)
 
 	options := sqs.Options{}
-	options.Credentials = aws.NewCredentialsCache(param.Provider)
+	options.Credentials = aws.NewCredentialsCache(param.Credentials)
 	options.Region = param.Region
 	client.sqs = sqs.New(options)
 

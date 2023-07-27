@@ -10,6 +10,7 @@ import (
 
 type Handle struct {
 	*internal.Base
+	*Provider
 
 	Times    int
 	Interval time.Duration
@@ -21,7 +22,8 @@ type Handle struct {
 
 func NewHandle() *Handle {
 	return &Handle{
-		Base: internal.NewBase(),
+		Base:     internal.NewBase(),
+		Provider: NewProvider(),
 
 		Times:    3,
 		Interval: 3 * time.Second,

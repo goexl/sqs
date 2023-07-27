@@ -5,11 +5,15 @@ import (
 )
 
 type Base struct {
+	*Provider
+
 	param *internal.Base
 }
 
 func NewBase() *Base {
 	return &Base{
+		Provider: NewProvider(),
+
 		param: internal.NewBase(),
 	}
 }
