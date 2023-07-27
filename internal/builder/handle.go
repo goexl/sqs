@@ -5,6 +5,7 @@ import (
 
 	"github.com/goexl/sqs/internal/callback"
 	"github.com/goexl/sqs/internal/param"
+	"github.com/goexl/sqs/internal/transcoder"
 	"github.com/goexl/sqs/internal/worker"
 )
 
@@ -32,15 +33,22 @@ func NewHandle(
 	}
 }
 
-func (h *Handle) RetryMax(max int) (handle *Handle) {
-	h.param.MaxRetry = max
+func (h *Handle) Times(max int) (handle *Handle) {
+	h.param.Times = max
 	handle = h
 
 	return
 }
 
-func (h *Handle) RetryDuration(duration time.Duration) (handle *Handle) {
-	h.param.RetryDuration = duration
+func (h *Handle) Interval(duration time.Duration) (handle *Handle) {
+	h.param.Interval = duration
+	handle = h
+
+	return
+}
+
+func (h *Handle) Decoder(decoder transcoder.Decoder) (handle *Handle) {
+	h.param.Decoder = decoder
 	handle = h
 
 	return

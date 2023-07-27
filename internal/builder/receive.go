@@ -10,7 +10,6 @@ import (
 )
 
 type Receive struct {
-	client  *param.Client
 	param   *param.Receive
 	receive callback.ReceiveMessage
 	url     callback.Url
@@ -18,15 +17,14 @@ type Receive struct {
 
 func NewReceive(client *param.Client, receive callback.ReceiveMessage, url callback.Url) *Receive {
 	return &Receive{
-		client:  client,
-		param:   param.NewReceive(receive, url),
+		param:   param.NewReceive(client, receive, url),
 		receive: receive,
 		url:     url,
 	}
 }
 
-func (r *Receive) AttributeNames(names ...types.QueueAttributeName) (receive *Receive) {
-	r.param.AttributeNames = names
+func (r *Receive) Names(names ...types.QueueAttributeName) (receive *Receive) {
+	r.param.Names = names
 	receive = r
 
 	return
@@ -39,22 +37,22 @@ func (r *Receive) Label(label string) (receive *Receive) {
 	return
 }
 
-func (r *Receive) MaxNumberOfMessages(max int32) (receive *Receive) {
-	r.param.MaxNumberOfMessages = max
+func (r *Receive) Number(number int32) (receive *Receive) {
+	r.param.Number = number
 	receive = r
 
 	return
 }
 
-func (r *Receive) MessageAttributeNames(names ...string) (receive *Receive) {
-	r.param.MessageAttributeNames = names
+func (r *Receive) Attributes(names ...string) (receive *Receive) {
+	r.param.Attributes = names
 	receive = r
 
 	return
 }
 
-func (r *Receive) VisibilityTimeout(timeout time.Duration) (receive *Receive) {
-	r.param.VisibilityTimeout = int32(timeout / time.Second)
+func (r *Receive) Visibility(timeout time.Duration) (receive *Receive) {
+	r.param.Visibility = int32(timeout / time.Second)
 	receive = r
 
 	return
@@ -68,5 +66,5 @@ func (r *Receive) Wait(wait time.Duration) (receive *Receive) {
 }
 
 func (r *Receive) Build() *worker.Receive {
-	return worker.NewReceive(r.client, r.param)
+	return worker.NewReceive(r.param)
 }

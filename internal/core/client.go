@@ -9,19 +9,22 @@ import (
 )
 
 type Client struct {
-	client *sqs.Client
-	urls   sync.Map
+	sqs    *sqs.Client
+	urls   *sync.Map
+	queues map[string]*string
 	param  *param.Client
 }
 
 func NewClient(param *param.Client) (client *Client) {
 	client = new(Client)
 	client.param = param
+	client.urls = new(sync.Map)
+	client.queues = make(map[string]*string)
 
 	options := sqs.Options{}
 	options.Credentials = aws.NewCredentialsCache(param.Provider)
 	options.Region = param.Region
-	client.client = sqs.New(options)
+	client.sqs = sqs.New(options)
 
 	return
 }

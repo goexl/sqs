@@ -16,14 +16,12 @@ import (
 type Handle struct {
 	simaqian.Logger
 
-	client  *param.Client
 	receive *param.Receive
 	param   *param.Handle
 }
 
-func NewHandle(client *param.Client, receive *param.Receive, param *param.Handle) *Handle {
+func NewHandle(receive *param.Receive, param *param.Handle) *Handle {
 	return &Handle{
-		client:  client,
 		receive: receive,
 		param:   param,
 	}
@@ -43,11 +41,11 @@ func (h *Handle) Start(ctx context.Context, handler message.Handler[any]) (err e
 func (h *Handle) do(ctx context.Context, url *string, handler message.Handler[any]) (err error) {
 	rmi := new(sqs.ReceiveMessageInput)
 	rmi.QueueUrl = url
-	rmi.AttributeNames = h.receive.AttributeNames
-	rmi.MaxNumberOfMessages = h.receive.MaxNumberOfMessages
-	rmi.MessageAttributeNames = h.receive.MessageAttributeNames
-	rmi.VisibilityTimeout = h.receive.VisibilityTimeout
-	rmi.WaitTimeSeconds = int32(gox.Ift(0 != h.receive.Wait, h.receive.Wait, h.client.Wait) / time.Second)
+	rmi.AttributeNames = h.receive.Names
+	rmi.MaxNumberOfMessages = h.receive.Number
+	rmi.MessageAttributeNames = h.receive.Attributes
+	rmi.VisibilityTimeout = h.receive.Visibility
+	rmi.WaitTimeSeconds = h.receive.WaitTimeSeconds()
 
 	for {
 		if rsp, re := h.receive.Receive(ctx, rmi); nil != err {
@@ -67,12 +65,12 @@ func (h *Handle) handle(ctx context.Context, url *string, msg *types.Message, ha
 	status := message.StatusUnknown
 	defer h.cleanup(ctx, url, msg, &status, &err)
 
-	for times := 0; times < h.param.MaxRetry; times++ {
+	for times := 0; times < h.param.Times; times++ {
 		status, err = h.process(ctx, msg, handler)
 		if nil == err {
 			break
 		} else {
-			time.Sleep(h.param.RetryDuration)
+			time.Sleep(h.param.Interval)
 		}
 	}
 }
@@ -100,7 +98,7 @@ func (h *Handle) process(
 
 func (h *Handle) cleanup(ctx context.Context, url *string, msg *types.Message, status *message.Status, err *error) {
 	if nil != *err {
-		_ = h.visibility(ctx, url, msg, h.param.RetryDuration)
+		_ = h.visibility(ctx, url, msg, h.param.Interval)
 	} else {
 		h.status(ctx, url, msg, status)
 	}

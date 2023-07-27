@@ -8,8 +8,8 @@ import (
 )
 
 type Handle struct {
-	MaxRetry      int
-	RetryDuration time.Duration
+	Times    int
+	Interval time.Duration
 
 	Decoder    transcoder.Decoder
 	Visibility callback.ChangeMessageVisibility
@@ -18,7 +18,7 @@ type Handle struct {
 
 func NewHandle() *Handle {
 	return &Handle{
-		MaxRetry:      3,
-		RetryDuration: 3 * time.Second,
+		Times:    3,
+		Interval: 3 * time.Second,
 	}
 }

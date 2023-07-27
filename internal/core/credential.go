@@ -1,16 +1,42 @@
 package core
 
 import (
-	"time"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/goexl/gox/http"
+	"github.com/goexl/sqs/internal/param"
+	"github.com/goexl/sqs/internal/provider/credential"
 )
 
 type Credential struct {
-	// 授权，相当于用户名
-	Id string `json:"id,omitempty"`
-	// 授权，相当于密码
-	Key string `json:"key,omitempty"`
-	// 授权
-	Session string `json:"session,omitempty"`
-	// 过期时间
-	Expires time.Time `json:"expires,omitempty"`
+	client   *Builder
+	param    *param.Client
+	provider aws.CredentialsProvider
+}
+
+func NewCredential(client *Builder, param *param.Client) *Credential {
+	return &Credential{
+		client: client,
+		param:  param,
+	}
+}
+
+func (c *Credential) Default(access string, secret string) (cdl *Credential) {
+	c.provider = credential.NewDefault(access, secret)
+	cdl = c
+
+	return
+}
+
+func (c *Credential) Http(method http.Method, url string) (cdl *Credential) {
+	c.provider = credential.NewHttp(method, url)
+	cdl = c
+
+	return
+}
+
+func (c *Credential) Build() (client *Builder) {
+	c.param.Provider = c.provider
+	client = c.client
+
+	return
 }

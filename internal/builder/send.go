@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/goexl/sqs/internal/callback"
 	"github.com/goexl/sqs/internal/param"
+	"github.com/goexl/sqs/internal/transcoder"
 	"github.com/goexl/sqs/internal/worker"
 )
 
@@ -32,6 +33,13 @@ func (s *Send) Delay(delay time.Duration) (send *Send) {
 
 func (s *Send) Label(label string) (send *Send) {
 	s.param.Label = label
+	send = s
+
+	return
+}
+
+func (s *Send) Encoder(encoder transcoder.Encoder) (send *Send) {
+	s.param.Encoder = encoder
 	send = s
 
 	return

@@ -18,9 +18,9 @@ func (c *Client) Url(ctx context.Context, label string) (url *string, err error)
 
 func (c *Client) url(ctx context.Context, label string) (url *string, err error) {
 	gqu := new(sqs.GetQueueUrlInput)
-	gqu.QueueName = c.queueMap[label]
+	gqu.QueueName = c.queues[label]
 
-	if rsp, ge := c.client.GetQueueUrl(ctx, gqu); nil != ge {
+	if rsp, ge := c.sqs.GetQueueUrl(ctx, gqu); nil != ge {
 		err = ge
 	} else {
 		url = rsp.QueueUrl
