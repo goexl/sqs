@@ -10,7 +10,7 @@ import (
 )
 
 type Send struct {
-	internal.Base
+	*internal.Base
 
 	Delay      time.Duration
 	Attributes map[string]types.MessageAttributeValue
@@ -23,6 +23,8 @@ type Send struct {
 
 func NewSend(send callback.SendMessage, url callback.Url) *Send {
 	return &Send{
+		Base: internal.NewBase(),
+
 		Attributes: make(map[string]types.MessageAttributeValue),
 		Systems:    make(map[string]types.MessageSystemAttributeValue),
 

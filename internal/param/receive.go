@@ -10,7 +10,7 @@ import (
 )
 
 type Receive struct {
-	internal.Base
+	*internal.Base
 
 	Wait       time.Duration
 	Visibility int32
@@ -26,6 +26,8 @@ type Receive struct {
 
 func NewReceive(client *Client, receive callback.ReceiveMessage, url callback.Url) *Receive {
 	return &Receive{
+		Base: internal.NewBase(),
+
 		Wait:   15 * time.Second,
 		Number: 1,
 
