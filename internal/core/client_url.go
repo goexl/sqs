@@ -6,17 +6,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/goexl/exc"
 	"github.com/goexl/gox/field"
+	"github.com/goexl/sqs/internal/builder"
 	"github.com/goexl/sqs/internal/internal"
 )
 
-func (c *Client) Url(ctx context.Context, label string) (url *string, err error) {
-	if cache, ok := c.urls.Load(label); ok {
-		url = cache.(*string)
-	} else {
-		// url, err = c.url(ctx, label)
-	}
-
-	return
+func (c *Client) Url() *builder.Url {
+	return builder.NewUrl(c.url)
 }
 
 func (c *Client) url(ctx context.Context, base *internal.Base) (url *string, err error) {

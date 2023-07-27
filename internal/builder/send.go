@@ -11,6 +11,8 @@ import (
 )
 
 type Send struct {
+	*Base
+
 	param *param.Send
 	send  callback.SendMessage
 	url   callback.Url
@@ -18,6 +20,8 @@ type Send struct {
 
 func NewSend(send callback.SendMessage, url callback.Url) *Send {
 	return &Send{
+		Base: NewBase(),
+
 		param: param.NewSend(send, url),
 		send:  send,
 		url:   url,

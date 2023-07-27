@@ -10,6 +10,8 @@ import (
 )
 
 type Receive struct {
+	*Base
+
 	param   *param.Receive
 	receive callback.ReceiveMessage
 	url     callback.Url
@@ -17,6 +19,8 @@ type Receive struct {
 
 func NewReceive(client *param.Client, receive callback.ReceiveMessage, url callback.Url) *Receive {
 	return &Receive{
+		Base: NewBase(),
+
 		param:   param.NewReceive(client, receive, url),
 		receive: receive,
 		url:     url,
