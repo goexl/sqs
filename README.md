@@ -9,7 +9,7 @@
 ![最佳语言](https://img.shields.io/github/languages/top/goexl/gox)
 ![星星个数](https://img.shields.io/github/stars/goexl/gox?style=social)
 
-项目介绍
+亚马逊云简单消息队列封装
 
 ## 捐助
 
