@@ -35,7 +35,7 @@ func (c *Credential) Http(method http.Method, url string) (cdl *Credential) {
 }
 
 func (c *Credential) Build() (client *Builder) {
-	c.param.Provider = c.provider
+	c.param.Provider.Credentials = c.provider
 	client = c.client
 
 	return
