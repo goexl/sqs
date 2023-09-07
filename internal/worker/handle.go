@@ -14,14 +14,14 @@ import (
 )
 
 type Handle struct {
-	simaqian.Logger
-
+	logger  simaqian.Logger
 	receive *param.Receive
 	param   *param.Handle
 }
 
-func NewHandle(receive *param.Receive, param *param.Handle) *Handle {
+func NewHandle(logger simaqian.Logger, receive *param.Receive, param *param.Handle) *Handle {
 	return &Handle{
+		logger:  logger,
 		receive: receive,
 		param:   param,
 	}
@@ -48,10 +48,8 @@ func (h *Handle) do(ctx context.Context, url *string, handler message.Handler[an
 	rmi.WaitTimeSeconds = h.receive.WaitTimeSeconds()
 
 	for {
-		if rsp, re := h.receive.Receive(ctx, rmi); nil != err {
-			return
-		} else if 1 != len(rsp.Messages) {
-			h.Warn("收取消息出错", field.New("url", url), field.Error(re))
+		if rsp, re := h.receive.Receive(ctx, rmi); nil != re {
+			h.logger.Warn("收取消息出错", field.New("url", url), field.Error(re))
 		} else { // 并行消费，加快消费速度
 			for _, msg := range rsp.Messages {
 				go h.handle(ctx, url, &msg, handler)
@@ -129,9 +127,9 @@ func (h *Handle) visibility(ctx context.Context, url *string, msg *types.Message
 	}
 	if _, ve := h.param.Visibility(ctx, cvi); nil != err {
 		err = ve
-		h.Info("达到最大重试次数，改变消息可见性等待下一次消费", fields.Add(field.Error(ve))...)
+		h.logger.Info("达到最大重试次数，改变消息可见性等待下一次消费", fields.Add(field.Error(ve))...)
 	} else {
-		h.Debug("达到最大重试次数，改变消息可见性等待下一次消费", fields...)
+		h.logger.Debug("达到最大重试次数，改变消息可见性等待下一次消费", fields...)
 	}
 
 	return
@@ -148,9 +146,9 @@ func (h *Handle) delete(ctx context.Context, url *string, msg *types.Message) (e
 	}
 	if _, de := h.param.Delete(ctx, dmi); nil != de {
 		err = de
-		h.Info("删除消息出错", fields.Add(field.Error(de))...)
+		h.logger.Info("删除消息出错", fields.Add(field.Error(de))...)
 	} else {
-		h.Debug("删除消息成功", fields...)
+		h.logger.Debug("删除消息成功", fields...)
 	}
 
 	return

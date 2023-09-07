@@ -20,12 +20,16 @@ type Handle struct {
 	Delete     callback.DeleteMessage
 }
 
-func NewHandle() *Handle {
+func NewHandle(visibility callback.ChangeMessageVisibility, delete callback.DeleteMessage) *Handle {
 	return &Handle{
 		Base:     internal.NewBase(),
 		Provider: NewProvider(),
 
 		Times:    3,
 		Interval: 3 * time.Second,
+
+		Decoder:    transcoder.NewJson(),
+		Visibility: visibility,
+		Delete:     delete,
 	}
 }

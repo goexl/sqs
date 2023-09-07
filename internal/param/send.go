@@ -13,6 +13,7 @@ type Send struct {
 	*internal.Base
 	*Provider
 
+	Data       any
 	Delay      time.Duration
 	Attributes map[string]types.MessageAttributeValue
 	Systems    map[string]types.MessageSystemAttributeValue

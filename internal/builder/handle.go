@@ -3,6 +3,7 @@ package builder
 import (
 	"time"
 
+	"github.com/goexl/simaqian"
 	"github.com/goexl/sqs/internal/callback"
 	"github.com/goexl/sqs/internal/param"
 	"github.com/goexl/sqs/internal/transcoder"
@@ -12,24 +13,26 @@ import (
 type Handle struct {
 	*Receive
 
-	param  *param.Handle
-	change callback.ChangeMessageVisibility
-	delete callback.DeleteMessage
+	param             *param.Handle
+	messageVisibility callback.ChangeMessageVisibility
+	delete            callback.DeleteMessage
+	logger            simaqian.Logger
 }
 
 func NewHandle(
 	client *param.Client,
 	receive callback.ReceiveMessage,
 	url callback.Url,
-	change callback.ChangeMessageVisibility,
+	visibility callback.ChangeMessageVisibility,
 	delete callback.DeleteMessage,
 ) *Handle {
 	return &Handle{
 		Receive: NewReceive(client, receive, url),
 
-		param:  param.NewHandle(),
-		change: change,
-		delete: delete,
+		param:             param.NewHandle(visibility, delete),
+		messageVisibility: visibility,
+		delete:            delete,
+		logger:            client.Logger,
 	}
 }
 
@@ -55,5 +58,5 @@ func (h *Handle) Decoder(decoder transcoder.Decoder) (handle *Handle) {
 }
 
 func (h *Handle) Build() *worker.Handle {
-	return worker.NewHandle(h.Receive.param, h.param)
+	return worker.NewHandle(h.logger, h.Receive.param, h.param)
 }

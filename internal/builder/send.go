@@ -42,6 +42,13 @@ func (s *Send) Label(label string) (send *Send) {
 	return
 }
 
+func (s *Send) Data(data any) (send *Send) {
+	s.param.Data = data
+	send = s
+
+	return
+}
+
 func (s *Send) Encoder(encoder transcoder.Encoder) (send *Send) {
 	s.param.Encoder = encoder
 	send = s

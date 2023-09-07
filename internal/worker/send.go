@@ -36,6 +36,17 @@ func (s *Send) do(ctx context.Context, url *string) (out *output.Send, err error
 	smi.MessageAttributes = s.param.Attributes
 	smi.MessageSystemAttributes = s.param.Systems
 
+	if encoded, ee := s.param.Encoder.Encode(s.param.Data); nil != ee {
+		err = ee
+	} else {
+		smi.MessageBody = encoded
+		out, err = s.send(ctx, smi)
+	}
+
+	return
+}
+
+func (s *Send) send(ctx context.Context, smi *sqs.SendMessageInput) (out *output.Send, err error) {
 	if rsp, se := s.param.Send(ctx, smi); nil != se {
 		err = se
 	} else {
