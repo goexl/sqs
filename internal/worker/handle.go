@@ -8,6 +8,7 @@ import (
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
 	"github.com/goexl/simaqian"
+	"github.com/goexl/sqs/internal/constant"
 	"github.com/goexl/sqs/internal/context"
 	"github.com/goexl/sqs/internal/message"
 	"github.com/goexl/sqs/internal/param"
@@ -52,14 +53,26 @@ func (h *Handle) do(ctx context.Context, url *string, handler message.Handler[an
 			h.logger.Warn("收取消息出错", field.New("url", url), field.Error(re))
 		} else { // 并行消费，加快消费速度
 			for _, msg := range rsp.Messages {
-				go h.handle(ctx, url, &msg, handler)
+				cloned := msg
+				go func() {
+					_ = h.handle(ctx, url, &cloned, handler)
+				}()
 			}
 		}
 	}
 }
 
-func (h *Handle) handle(ctx context.Context, url *string, msg *types.Message, handler message.Handler[any]) {
-	var err error
+func (h *Handle) handle(ctx context.Context, url *string, msg *types.Message, handler message.Handler[any]) (err error) {
+	if _, ok := msg.MessageAttributes[constant.Runtime]; ok {
+		err = h.checkDelay(ctx, url, msg, handler)
+	} else {
+		err = h.deal(ctx, url, msg, handler)
+	}
+
+	return
+}
+
+func (h *Handle) deal(ctx context.Context, url *string, msg *types.Message, handler message.Handler[any]) (err error) {
 	status := message.StatusUnknown
 	defer h.cleanup(ctx, url, msg, &status, &err)
 
@@ -71,6 +84,28 @@ func (h *Handle) handle(ctx context.Context, url *string, msg *types.Message, ha
 			time.Sleep(h.param.Interval)
 		}
 	}
+
+	return
+}
+
+func (h *Handle) checkDelay(
+	ctx context.Context,
+	url *string,
+	msg *types.Message,
+	handler message.Handler[any],
+) (err error) {
+	diff := time.Duration(0)
+	runtime := *msg.MessageAttributes[constant.Runtime].StringValue
+	if realtime, pe := time.Parse(constant.LayoutTime, runtime); nil == pe {
+		diff = realtime.Sub(time.Now())
+	}
+	if diff > 0 {
+		err = h.changeVisibility(ctx, url, msg, diff)
+	} else {
+		err = h.deal(ctx, url, msg, handler)
+	}
+
+	return
 }
 
 func (h *Handle) process(
@@ -96,7 +131,7 @@ func (h *Handle) process(
 
 func (h *Handle) cleanup(ctx context.Context, url *string, msg *types.Message, status *message.Status, err *error) {
 	if nil != *err {
-		_ = h.visibility(ctx, url, msg, h.param.Interval)
+		_ = h.changeVisibility(ctx, url, msg, h.param.Interval)
 	} else {
 		h.status(ctx, url, msg, status)
 	}
@@ -107,15 +142,15 @@ func (h *Handle) status(ctx context.Context, url *string, msg *types.Message, st
 	case message.StatusSuccess: // 消费成功，删除消息，不然会重复消费
 		_ = h.delete(ctx, url, msg)
 	case message.StatusLater: // 延迟消费，改变消息可见性，使其在指定的时间内再次被消费
-		_ = h.visibility(ctx, url, msg, context.Delay(ctx))
+		_ = h.changeVisibility(ctx, url, msg, context.Delay(ctx))
 	case message.StatusUnknown: // 默认状态，改变消息可见性，使前可以立即被消费
-		_ = h.visibility(ctx, url, msg, time.Second)
+		_ = h.changeVisibility(ctx, url, msg, time.Second)
 	}
 
 	return
 }
 
-func (h *Handle) visibility(ctx context.Context, url *string, msg *types.Message, timeout time.Duration) (err error) {
+func (h *Handle) changeVisibility(ctx context.Context, url *string, msg *types.Message, timeout time.Duration) (err error) {
 	cvi := new(sqs.ChangeMessageVisibilityInput)
 	cvi.QueueUrl = url
 	cvi.ReceiptHandle = msg.ReceiptHandle

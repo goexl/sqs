@@ -15,9 +15,10 @@ type Handle struct {
 	Times    int
 	Interval time.Duration
 
-	Decoder    transcoder.Decoder
-	Visibility callback.ChangeMessageVisibility
-	Delete     callback.DeleteMessage
+	Decoder       transcoder.Decoder
+	Visibility    callback.ChangeMessageVisibility
+	Delete        callback.DeleteMessage
+	GetAttributes callback.GetAttributes
 }
 
 func NewHandle(visibility callback.ChangeMessageVisibility, delete callback.DeleteMessage) *Handle {

@@ -15,12 +15,14 @@ type Send struct {
 
 	Data       any
 	Delay      time.Duration
+	Runtime    *time.Time
 	Attributes map[string]types.MessageAttributeValue
 	Systems    map[string]types.MessageSystemAttributeValue
 
-	Encoder transcoder.Encoder
-	Send    callback.SendMessage
-	Url     callback.Url
+	Encoder       transcoder.Encoder
+	Send          callback.SendMessage
+	Url           callback.Url
+	GetAttributes callback.GetAttributes
 }
 
 func NewSend(send callback.SendMessage, url callback.Url) *Send {

@@ -31,7 +31,7 @@ func (c *Client) query(ctx context.Context, base *internal.Base) (url *string, e
 	} else {
 		gqu.QueueName = c.param.Queues[base.Label]
 	}
-
+	c.sqs.GetQueueAttributes()
 	if "" == *gqu.QueueName {
 		err = exc.NewField("必须指定队列名称", field.New("label", base.Label))
 	} else if rsp, ge := c.sqs.GetQueueUrl(ctx, gqu); nil != ge {

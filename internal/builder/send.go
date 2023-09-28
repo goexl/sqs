@@ -35,6 +35,13 @@ func (s *Send) Delay(delay time.Duration) (send *Send) {
 	return
 }
 
+func (s *Send) Fix(time time.Time) (send *Send) {
+	s.param.Runtime = &time
+	send = s
+
+	return
+}
+
 func (s *Send) Label(label string) (send *Send) {
 	s.param.Label = label
 	send = s

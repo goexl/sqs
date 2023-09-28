@@ -4,7 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
+	"github.com/goexl/sqs/internal/constant"
 	"github.com/goexl/sqs/internal/output"
 	"github.com/goexl/sqs/internal/param"
 )
@@ -36,6 +39,17 @@ func (s *Send) do(ctx context.Context, url *string) (out *output.Send, err error
 	smi.MessageAttributes = s.param.Attributes
 	smi.MessageSystemAttributes = s.param.Systems
 
+	if attributes, gae := s.param.GetAttributes(ctx, url); nil == gae {
+
+	}
+	// 设置时间
+	if nil != s.param.Runtime {
+		smi.MessageAttributes[constant.Runtime] = types.MessageAttributeValue{
+			DataType:    aws.String(constant.DataTypeNumber),
+			StringValue: aws.String(s.param.Runtime.Format(constant.LayoutTime)),
+		}
+	}
+
 	if encoded, ee := s.param.Encoder.Encode(s.param.Data); nil != ee {
 		err = ee
 	} else {
@@ -44,6 +58,10 @@ func (s *Send) do(ctx context.Context, url *string) (out *output.Send, err error
 	}
 
 	return
+}
+
+func (s *Send) setAttributes(ctx context.Context, url *string, input *sqs.SendMessageInput) (out *output.Send, err error) {
+
 }
 
 func (s *Send) send(ctx context.Context, smi *sqs.SendMessageInput) (out *output.Send, err error) {
