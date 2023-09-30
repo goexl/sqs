@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
@@ -94,15 +95,16 @@ func (h *Handle) checkDelay(
 	msg *types.Message,
 	handler message.Handler[any],
 ) (err error) {
-	diff := time.Duration(0)
-	runtime := *msg.MessageAttributes[constant.Runtime].StringValue
-	if realtime, pe := time.Parse(constant.LayoutTime, runtime); nil == pe {
-		diff = realtime.Sub(time.Now())
-	}
-	if diff > 0 {
-		err = h.changeVisibility(ctx, url, msg, diff)
-	} else {
+	now := time.Now()
+	sent, runtime := h.getTime(msg)
+	if now.Before(runtime) { // 已经过了执行时间，处理消息
 		err = h.deal(ctx, url, msg, handler)
+	} else if attributes, gae := h.param.GetAttributes(ctx, url); nil != gae {
+		err = gae
+	} else if attributes.Invalid(sent) { // 消息失效，重新发送一个全新消息
+		err = h.renew(ctx, url, msg)
+	} else { // 改变可见性，等待下一次消费
+		err = h.changeVisibility(ctx, url, msg, attributes.Visibility())
 	}
 
 	return
@@ -184,6 +186,37 @@ func (h *Handle) delete(ctx context.Context, url *string, msg *types.Message) (e
 		h.logger.Info("删除消息出错", fields.Add(field.Error(de))...)
 	} else {
 		h.logger.Debug("删除消息成功", fields...)
+	}
+
+	return
+}
+
+func (h *Handle) renew(ctx context.Context, url *string, msg *types.Message) (err error) {
+	smi := new(sqs.SendMessageInput)
+	smi.QueueUrl = url
+	smi.MessageAttributes = msg.MessageAttributes
+	smi.MessageBody = msg.Body
+	if out, se := h.receive.Send(ctx, smi); nil != se {
+		err = se
+	} else if "" != *out.MessageId {
+		err = h.delete(ctx, url, msg)
+	}
+
+	return
+}
+
+func (h *Handle) getTime(msg *types.Message) (sent time.Time, run time.Time) {
+	now := time.Now()
+	runtime := *msg.MessageAttributes[constant.Runtime].StringValue
+	if realtime, pe := time.Parse(constant.LayoutTime, runtime); nil == pe {
+		run = realtime
+	} else {
+		run = now
+	}
+	if milliseconds, pe := strconv.ParseInt(msg.Attributes[constant.SentTime], 10, 64); nil != pe {
+		sent = time.UnixMilli(milliseconds)
+	} else {
+		sent = now
 	}
 
 	return

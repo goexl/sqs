@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
@@ -35,17 +34,15 @@ func (s *Send) Do(ctx context.Context) (out *output.Send, err error) {
 func (s *Send) do(ctx context.Context, url *string) (out *output.Send, err error) {
 	smi := new(sqs.SendMessageInput)
 	smi.QueueUrl = url
-	smi.DelaySeconds = int32(s.param.Delay / time.Second)
 	smi.MessageAttributes = s.param.Attributes
 	smi.MessageSystemAttributes = s.param.Systems
 
-	if attributes, gae := s.param.GetAttributes(ctx, url); nil == gae {
-
+	if 0 != s.param.Delay {
+		smi.DelaySeconds = int32(s.param.Delay.Seconds())
 	}
-	// 设置时间
 	if nil != s.param.Runtime {
 		smi.MessageAttributes[constant.Runtime] = types.MessageAttributeValue{
-			DataType:    aws.String(constant.DataTypeNumber),
+			DataType:    aws.String(constant.DataTypeString),
 			StringValue: aws.String(s.param.Runtime.Format(constant.LayoutTime)),
 		}
 	}
@@ -58,10 +55,6 @@ func (s *Send) do(ctx context.Context, url *string) (out *output.Send, err error
 	}
 
 	return
-}
-
-func (s *Send) setAttributes(ctx context.Context, url *string, input *sqs.SendMessageInput) (out *output.Send, err error) {
-
 }
 
 func (s *Send) send(ctx context.Context, smi *sqs.SendMessageInput) (out *output.Send, err error) {

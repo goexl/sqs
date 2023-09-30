@@ -19,10 +19,9 @@ type Send struct {
 	Attributes map[string]types.MessageAttributeValue
 	Systems    map[string]types.MessageSystemAttributeValue
 
-	Encoder       transcoder.Encoder
-	Send          callback.SendMessage
-	Url           callback.Url
-	GetAttributes callback.GetAttributes
+	Encoder transcoder.Encoder
+	Send    callback.SendMessage
+	Url     callback.Url
 }
 
 func NewSend(send callback.SendMessage, url callback.Url) *Send {

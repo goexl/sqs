@@ -17,11 +17,14 @@ type Receive struct {
 	url     callback.Url
 }
 
-func NewReceive(client *param.Client, receive callback.ReceiveMessage, url callback.Url) *Receive {
+func NewReceive(
+	client *param.Client,
+	send callback.SendMessage, receive callback.ReceiveMessage, url callback.Url,
+) *Receive {
 	return &Receive{
 		Base: NewBase(),
 
-		param:   param.NewReceive(client, receive, url),
+		param:   param.NewReceive(client, send, receive, url),
 		receive: receive,
 		url:     url,
 	}

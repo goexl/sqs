@@ -19,13 +19,14 @@ type Receive struct {
 	Names      []types.QueueAttributeName
 	Attributes []string
 
+	Send    callback.SendMessage
 	Receive callback.ReceiveMessage
 	Url     callback.Url
 
 	client *Client
 }
 
-func NewReceive(client *Client, receive callback.ReceiveMessage, url callback.Url) *Receive {
+func NewReceive(client *Client, send callback.SendMessage, receive callback.ReceiveMessage, url callback.Url) *Receive {
 	return &Receive{
 		Base:     internal.NewBase(),
 		Provider: NewProvider(),
@@ -33,6 +34,7 @@ func NewReceive(client *Client, receive callback.ReceiveMessage, url callback.Ur
 		Wait:   15 * time.Second,
 		Number: 1,
 
+		Send:    send,
 		Receive: receive,
 		Url:     url,
 

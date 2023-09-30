@@ -1,5 +1,9 @@
 package constant
 
 const (
-	DataTypeNumber = "Number"
+	DataTypeString = "String"
+
+	KeyDelay      = "DelaySeconds"
+	KeyPeriod     = "MessageRetentionPeriod"
+	KeyVisibility = "VisibilityTimeout"
 )

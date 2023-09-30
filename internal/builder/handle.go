@@ -21,13 +21,12 @@ type Handle struct {
 
 func NewHandle(
 	client *param.Client,
-	receive callback.ReceiveMessage,
-	url callback.Url,
-	visibility callback.ChangeMessageVisibility,
+	send callback.SendMessage, receive callback.ReceiveMessage,
+	url callback.Url, visibility callback.ChangeMessageVisibility,
 	delete callback.DeleteMessage,
 ) *Handle {
 	return &Handle{
-		Receive: NewReceive(client, receive, url),
+		Receive: NewReceive(client, send, receive, url),
 
 		param:             param.NewHandle(visibility, delete),
 		messageVisibility: visibility,

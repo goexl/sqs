@@ -9,15 +9,17 @@ import (
 )
 
 type Client struct {
-	sqs   *sqs.Client
-	urls  *sync.Map
-	param *param.Client
+	sqs        *sqs.Client
+	urls       *sync.Map
+	attributes *sync.Map
+	param      *param.Client
 }
 
 func NewClient(param *param.Client) (client *Client) {
 	client = new(Client)
 	client.param = param
 	client.urls = new(sync.Map)
+	client.attributes = new(sync.Map)
 
 	options := sqs.Options{}
 	options.Credentials = aws.NewCredentialsCache(param.Credentials)

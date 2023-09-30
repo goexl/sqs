@@ -13,30 +13,41 @@ import (
 type Send struct {
 	*Base
 
-	param *param.Send
-	send  callback.SendMessage
-	url   callback.Url
+	param        *param.Send
+	defaultDelay time.Duration
 }
 
 func NewSend(send callback.SendMessage, url callback.Url) *Send {
 	return &Send{
 		Base: NewBase(),
 
-		param: param.NewSend(send, url),
-		send:  send,
-		url:   url,
+		param:        param.NewSend(send, url),
+		defaultDelay: 15 * time.Minute,
 	}
 }
 
 func (s *Send) Delay(delay time.Duration) (send *Send) {
-	s.param.Delay = delay
+	if delay <= s.defaultDelay {
+		s.param.Delay = delay
+	} else {
+		diff := delay - s.defaultDelay
+		runtime := time.Now().Add(diff)
+		s.param.Runtime = &runtime
+	}
 	send = s
 
 	return
 }
 
-func (s *Send) Fix(time time.Time) (send *Send) {
-	s.param.Runtime = &time
+func (s *Send) Fix(set time.Time) (send *Send) {
+	diff := set.Sub(time.Now())
+	if diff <= s.defaultDelay {
+		s.param.Delay = diff
+	} else {
+		s.param.Delay = s.defaultDelay
+		runtime := set.Add(-s.defaultDelay)
+		s.param.Runtime = &runtime
+	}
 	send = s
 
 	return

@@ -31,14 +31,17 @@ func (c *Client) query(ctx context.Context, base *internal.Base) (url *string, e
 	} else {
 		gqu.QueueName = c.param.Queues[base.Label]
 	}
-	c.sqs.GetQueueAttributes()
+
+	label := base.Label
 	if "" == *gqu.QueueName {
 		err = exc.NewField("必须指定队列名称", field.New("label", base.Label))
-	} else if rsp, ge := c.sqs.GetQueueUrl(ctx, gqu); nil != ge {
-		err = ge
+	} else if cached, ok := c.urls.Load(label); ok {
+		url = cached.(*string)
+	} else if rsp, gue := c.sqs.GetQueueUrl(ctx, gqu); nil != gue {
+		err = gue
 	} else {
 		url = rsp.QueueUrl
-		c.urls.Store(base.Label, url)
+		c.urls.Store(label, url)
 	}
 
 	return
