@@ -41,19 +41,11 @@ func (h *Handle) Start(ctx context.Context, handler message.Handler[any]) (err e
 }
 
 func (h *Handle) do(ctx context.Context, url *string, handler message.Handler[any]) (err error) {
-	rmi := new(sqs.ReceiveMessageInput)
-	rmi.QueueUrl = url
-	rmi.AttributeNames = h.receive.Names
-	rmi.MaxNumberOfMessages = h.receive.Number
-	rmi.MessageAttributeNames = h.receive.Attributes
-	rmi.VisibilityTimeout = h.receive.Visibility
-	rmi.WaitTimeSeconds = h.receive.WaitTimeSeconds()
-
 	for {
-		if rsp, re := h.receive.Receive(ctx, rmi); nil != re {
+		if out, re := h.receive.Do(ctx, url); nil != re {
 			h.logger.Warn("收取消息出错", field.New("url", url), field.Error(re))
 		} else { // 并行消费，加快消费速度
-			for _, msg := range rsp.Messages {
+			for _, msg := range out.Messages {
 				cloned := msg
 				go func() {
 					_ = h.handle(ctx, url, &cloned, handler)
@@ -97,14 +89,16 @@ func (h *Handle) checkDelay(
 ) (err error) {
 	now := time.Now()
 	sent, runtime := h.getTime(msg)
-	if now.Before(runtime) { // 已经过了执行时间，处理消息
+	if runtime.Before(now) { // 已经过了执行时间，处理消息
 		err = h.deal(ctx, url, msg, handler)
-	} else if attributes, gae := h.param.GetAttributes(ctx, url); nil != gae {
+	} else if attributes, gae := h.receive.GetAttributes(ctx, url); nil != gae {
 		err = gae
-	} else if attributes.Invalid(sent) { // 消息失效，重新发送一个全新消息
+	} else if attributes.Invalidate(sent) { // 消息失效，重新发送一个全新消息
 		err = h.renew(ctx, url, msg)
 	} else { // 改变可见性，等待下一次消费
-		err = h.changeVisibility(ctx, url, msg, attributes.Visibility())
+		visibility := attributes.Visibility()
+		need := runtime.Sub(now)
+		err = h.changeVisibility(ctx, url, msg, min(visibility, need))
 	}
 
 	return
@@ -152,15 +146,19 @@ func (h *Handle) status(ctx context.Context, url *string, msg *types.Message, st
 	return
 }
 
-func (h *Handle) changeVisibility(ctx context.Context, url *string, msg *types.Message, timeout time.Duration) (err error) {
+func (h *Handle) changeVisibility(
+	ctx context.Context,
+	url *string, msg *types.Message,
+	visibility time.Duration,
+) (err error) {
 	cvi := new(sqs.ChangeMessageVisibilityInput)
 	cvi.QueueUrl = url
 	cvi.ReceiptHandle = msg.ReceiptHandle
-	cvi.VisibilityTimeout = int32(timeout / time.Second)
+	cvi.VisibilityTimeout = int32(visibility.Seconds())
 
 	fields := gox.Fields[any]{
 		field.New("id", msg.MessageId),
-		field.New("next", time.Now().Add(timeout)),
+		field.New("next", time.Now().Add(visibility)),
 	}
 	if _, ve := h.param.Visibility(ctx, cvi); nil != err {
 		err = ve
@@ -208,12 +206,12 @@ func (h *Handle) renew(ctx context.Context, url *string, msg *types.Message) (er
 func (h *Handle) getTime(msg *types.Message) (sent time.Time, run time.Time) {
 	now := time.Now()
 	runtime := *msg.MessageAttributes[constant.Runtime].StringValue
-	if realtime, pe := time.Parse(constant.LayoutTime, runtime); nil == pe {
+	if realtime, pe := time.Parse(time.RFC3339, runtime); nil == pe {
 		run = realtime
 	} else {
 		run = now
 	}
-	if milliseconds, pe := strconv.ParseInt(msg.Attributes[constant.SentTime], 10, 64); nil != pe {
+	if milliseconds, pe := strconv.ParseInt(msg.Attributes[constant.KeySentTimestamp], 10, 64); nil != pe {
 		sent = time.UnixMilli(milliseconds)
 	} else {
 		sent = now

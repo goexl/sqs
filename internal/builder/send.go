@@ -30,6 +30,7 @@ func (s *Send) Delay(delay time.Duration) (send *Send) {
 	if delay <= s.defaultDelay {
 		s.param.Delay = delay
 	} else {
+		s.param.Delay = s.defaultDelay
 		diff := delay - s.defaultDelay
 		runtime := time.Now().Add(diff)
 		s.param.Runtime = &runtime

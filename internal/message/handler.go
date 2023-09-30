@@ -9,5 +9,5 @@ type Handler[T any] interface {
 	Peek() T
 
 	// Process 处理消息
-	Process(context context.Context, msg T, extra *Extra) (status Status, err error)
+	Process(ctx context.Context, msg T, extra *Extra) (status Status, err error)
 }

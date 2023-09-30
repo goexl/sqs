@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
@@ -43,7 +44,7 @@ func (s *Send) do(ctx context.Context, url *string) (out *output.Send, err error
 	if nil != s.param.Runtime {
 		smi.MessageAttributes[constant.Runtime] = types.MessageAttributeValue{
 			DataType:    aws.String(constant.DataTypeString),
-			StringValue: aws.String(s.param.Runtime.Format(constant.LayoutTime)),
+			StringValue: aws.String(s.param.Runtime.Format(time.RFC3339)),
 		}
 	}
 

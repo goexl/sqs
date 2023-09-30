@@ -1,8 +1,6 @@
 package constant
 
 const (
-	Runtime    = "runtime"
-	SentTime   = "SentTime"
-	LayoutTime = "2006.01.02 15:04:05"
-	Zero       = 0
+	Runtime = "runtime"
+	Zero    = 0
 )

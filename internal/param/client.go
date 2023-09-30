@@ -8,11 +8,11 @@ import (
 
 type Client struct {
 	*Provider
-	simaqian.Logger
 
 	Region string
 	Wait   time.Duration
 	Queues map[string]*string
+	Logger simaqian.Logger
 }
 
 func NewClient() *Client {
@@ -21,5 +21,6 @@ func NewClient() *Client {
 
 		Wait:   20 * time.Second,
 		Queues: make(map[string]*string),
+		Logger: simaqian.Default(),
 	}
 }

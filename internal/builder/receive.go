@@ -19,12 +19,13 @@ type Receive struct {
 
 func NewReceive(
 	client *param.Client,
-	send callback.SendMessage, receive callback.ReceiveMessage, url callback.Url,
+	send callback.SendMessage, receive callback.ReceiveMessage,
+	url callback.Url, attributes callback.GetAttributes,
 ) *Receive {
 	return &Receive{
 		Base: NewBase(),
 
-		param:   param.NewReceive(client, send, receive, url),
+		param:   param.NewReceive(client, send, receive, url, attributes),
 		receive: receive,
 		url:     url,
 	}
@@ -58,8 +59,8 @@ func (r *Receive) Attributes(names ...string) (receive *Receive) {
 	return
 }
 
-func (r *Receive) Visibility(timeout time.Duration) (receive *Receive) {
-	r.param.Visibility = int32(timeout / time.Second)
+func (r *Receive) Visibility(visibility time.Duration) (receive *Receive) {
+	r.param.Visibility = visibility
 	receive = r
 
 	return

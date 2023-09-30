@@ -23,10 +23,10 @@ func NewHandle(
 	client *param.Client,
 	send callback.SendMessage, receive callback.ReceiveMessage,
 	url callback.Url, visibility callback.ChangeMessageVisibility,
-	delete callback.DeleteMessage,
+	delete callback.DeleteMessage, attributes callback.GetAttributes,
 ) *Handle {
 	return &Handle{
-		Receive: NewReceive(client, send, receive, url),
+		Receive: NewReceive(client, send, receive, url, attributes),
 
 		param:             param.NewHandle(visibility, delete),
 		messageVisibility: visibility,

@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/goexl/sqs/internal/constant"
@@ -16,8 +17,11 @@ func NewAttributes(values map[string]string) *Attributes {
 	}
 }
 
-func (a *Attributes) Invalid(sent time.Time) bool {
-	return time.Now().Sub(sent)+a.Visibility()*2 > a.Period()
+func (a *Attributes) Invalidate(sent time.Time) bool {
+	config := a.Period()
+	need := time.Now().Sub(sent) + a.Visibility()*2
+
+	return need > config
 }
 
 func (a *Attributes) Period() time.Duration {
@@ -43,10 +47,10 @@ func (a *Attributes) getDuration(key string, def time.Duration) (duration time.D
 }
 
 func (a *Attributes) parseDuration(value string, def time.Duration) (duration time.Duration) {
-	if parsed, pde := time.ParseDuration(value); nil != pde {
+	if parsed, pde := strconv.ParseInt(value, 10, 64); nil != pde {
 		duration = def
 	} else {
-		duration = parsed
+		duration = time.Duration(parsed) * time.Second
 	}
 
 	return

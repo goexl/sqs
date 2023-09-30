@@ -15,6 +15,7 @@ func (c *Client) getAttributes(ctx context.Context, url *string) (attributes *in
 		types.QueueAttributeNameVisibilityTimeout,
 		types.QueueAttributeNameMaximumMessageSize,
 		types.QueueAttributeNameDelaySeconds,
+		types.QueueAttributeNameMessageRetentionPeriod,
 	}
 
 	if cached, ok := c.attributes.Load(*url); ok {
@@ -23,7 +24,7 @@ func (c *Client) getAttributes(ctx context.Context, url *string) (attributes *in
 		err = ge
 	} else {
 		attributes = internal.NewAttributes(out.Attributes)
-		c.urls.Store(*url, attributes)
+		c.attributes.Store(*url, attributes)
 	}
 
 	return

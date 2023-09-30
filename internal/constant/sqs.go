@@ -3,7 +3,8 @@ package constant
 const (
 	DataTypeString = "String"
 
-	KeyDelay      = "DelaySeconds"
-	KeyPeriod     = "MessageRetentionPeriod"
-	KeyVisibility = "VisibilityTimeout"
+	KeyDelay         = "DelaySeconds"
+	KeyPeriod        = "MessageRetentionPeriod"
+	KeyVisibility    = "VisibilityTimeout"
+	KeySentTimestamp = "SentTimestamp"
 )
