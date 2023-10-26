@@ -44,9 +44,9 @@ func (h *Handle) Start(ctx context.Context, handler message.Handler[any]) (err e
 
 func (h *Handle) do(ctx context.Context, url *string, handler message.Handler[any]) (err error) {
 	for {
-		if out, re := h.receive.Do(ctx, url); nil != re {
+		if out, re := h.receive.Do(ctx, url); nil != re && !h.receive.Exited() {
 			h.logger.Warn("收取消息出错", field.New("url", url), field.Error(re))
-		} else { // 并行消费，加快消费速度
+		} else if nil != out { // 并行消费，加快消费速度
 			for _, msg := range out.Messages {
 				cloned := msg
 				go func() {
