@@ -3,6 +3,7 @@ package core
 import (
 	"time"
 
+	"github.com/goexl/log"
 	"github.com/goexl/sqs/internal/param"
 )
 

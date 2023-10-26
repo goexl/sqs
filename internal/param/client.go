@@ -21,6 +21,6 @@ func NewClient() *Client {
 
 		Wait:   20 * time.Second,
 		Queues: make(map[string]*string),
-		Logger: log.Default(),
+		Logger: log.New().Apply(),
 	}
 }
