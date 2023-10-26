@@ -52,7 +52,14 @@ func (h *Handle) do(ctx context.Context, url *string, handler message.Handler[an
 				}()
 			}
 		}
+
+		// 检查是否退出
+		if h.receive.Exited() {
+			break
+		}
 	}
+
+	return
 }
 
 func (h *Handle) handle(ctx context.Context, url *string, msg *types.Message, handler message.Handler[any]) (err error) {

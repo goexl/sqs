@@ -28,3 +28,7 @@ func NewClient(param *param.Client) (client *Client) {
 
 	return
 }
+
+func (c *Client) Stop() {
+	c.param.Exit = true
+}

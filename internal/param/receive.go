@@ -62,3 +62,7 @@ func (r *Receive) Do(ctx context.Context, url *string) (*sqs.ReceiveMessageOutpu
 
 	return r.receive(ctx, input)
 }
+
+func (r *Receive) Exited() bool {
+	return r.client.Exit
+}

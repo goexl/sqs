@@ -13,6 +13,7 @@ type Client struct {
 	Wait   time.Duration
 	Queues map[string]*string
 	Logger log.Logger
+	Exit   bool
 }
 
 func NewClient() *Client {
