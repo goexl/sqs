@@ -3,7 +3,6 @@ package core
 import (
 	"time"
 
-	"github.com/goexl/simaqian"
 	"github.com/goexl/sqs/internal/param"
 )
 
@@ -17,7 +16,7 @@ func NewBuilder() *Builder {
 	}
 }
 
-func (b *Builder) Logger(logger simaqian.Logger) (client *Builder) {
+func (b *Builder) Logger(logger log.Logger) (client *Builder) {
 	b.param.Logger = logger
 	client = b
 

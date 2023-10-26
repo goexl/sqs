@@ -3,7 +3,7 @@ package builder
 import (
 	"time"
 
-	"github.com/goexl/simaqian"
+	"github.com/goexl/log"
 	"github.com/goexl/sqs/internal/callback"
 	"github.com/goexl/sqs/internal/param"
 	"github.com/goexl/sqs/internal/transcoder"
@@ -16,7 +16,7 @@ type Handle struct {
 	param             *param.Handle
 	messageVisibility callback.ChangeMessageVisibility
 	delete            callback.DeleteMessage
-	logger            simaqian.Logger
+	logger            log.Logger
 }
 
 func NewHandle(

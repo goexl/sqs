@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/goexl/gox"
 	"github.com/goexl/gox/field"
-	"github.com/goexl/simaqian"
+	"github.com/goexl/log"
 	"github.com/goexl/sqs/internal/constant"
 	"github.com/goexl/sqs/internal/context"
 	"github.com/goexl/sqs/internal/message"
@@ -16,12 +16,12 @@ import (
 )
 
 type Handle struct {
-	logger  simaqian.Logger
+	logger  log.Logger
 	receive *param.Receive
 	param   *param.Handle
 }
 
-func NewHandle(logger simaqian.Logger, receive *param.Receive, param *param.Handle) *Handle {
+func NewHandle(logger log.Logger, receive *param.Receive, param *param.Handle) *Handle {
 	return &Handle{
 		logger:  logger,
 		receive: receive,
