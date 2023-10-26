@@ -29,7 +29,7 @@ func (c *Client) query(ctx context.Context, base *internal.Base) (url *string, e
 	if "" != base.Queue {
 		gqu.QueueName = &base.Queue
 	} else {
-		gqu.QueueName = c.param.Queues[base.Label]
+		gqu.QueueName = c.params.Queues[base.Label]
 	}
 
 	label := base.Label

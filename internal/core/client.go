@@ -12,23 +12,24 @@ type Client struct {
 	sqs        *sqs.Client
 	urls       *sync.Map
 	attributes *sync.Map
-	param      *param.Client
+	params     *param.Client
 }
 
-func NewClient(param *param.Client) (client *Client) {
+func NewClient(params *param.Client) (client *Client) {
 	client = new(Client)
-	client.param = param
+	client.params = params
 	client.urls = new(sync.Map)
 	client.attributes = new(sync.Map)
 
 	options := sqs.Options{}
-	options.Credentials = aws.NewCredentialsCache(param.Credentials)
-	options.Region = param.Region
+	options.Credentials = aws.NewCredentialsCache(params.Credentials)
+	options.Region = params.Region
 	client.sqs = sqs.New(options)
 
 	return
 }
 
 func (c *Client) Stop() {
-	c.param.Exit = true
+	c.params.Exit = true
+	c.params.Cancel()
 }

@@ -66,3 +66,7 @@ func (r *Receive) Do(ctx context.Context, url *string) (*sqs.ReceiveMessageOutpu
 func (r *Receive) Exited() bool {
 	return r.client.Exit
 }
+
+func (r *Receive) Cancel(cancel context.CancelFunc) {
+	r.client.Cancel = cancel
+}

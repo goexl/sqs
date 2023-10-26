@@ -30,10 +30,12 @@ func NewHandle(logger log.Logger, receive *param.Receive, param *param.Handle) *
 }
 
 func (h *Handle) Start(ctx context.Context, handler message.Handler[any]) (err error) {
-	if url, ue := h.receive.Url(ctx, h.receive.Base); nil != ue {
+	cancel, callback := context.WithCancel(ctx)
+	h.receive.Cancel(callback)
+	if url, ue := h.receive.Url(cancel, h.receive.Base); nil != ue {
 		err = ue
 	} else {
-		err = h.do(ctx, url, handler)
+		err = h.do(cancel, url, handler)
 	}
 
 	return
