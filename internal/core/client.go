@@ -30,7 +30,7 @@ func NewClient(params *param.Client) (client *Client) {
 }
 
 func (c *Client) Stop() {
-	if nil != c && nil != c.params {
+	if nil == c || nil == c.params {
 		return
 	}
 
