@@ -30,6 +30,12 @@ func NewClient(params *param.Client) (client *Client) {
 }
 
 func (c *Client) Stop() {
+	if nil != c && nil != c.params {
+		return
+	}
+
 	c.params.Exit = true
-	c.params.Cancel()
+	if nil != c.params.Cancel {
+		c.params.Cancel()
+	}
 }
