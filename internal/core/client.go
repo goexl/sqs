@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"sync"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -29,7 +30,7 @@ func NewClient(params *param.Client) (client *Client) {
 	return
 }
 
-func (c *Client) Stop() {
+func (c *Client) Stop(_ context.Context) (err error) {
 	if nil == c || nil == c.params {
 		return
 	}
@@ -38,4 +39,6 @@ func (c *Client) Stop() {
 	if nil != c.params.Cancel {
 		c.params.Cancel()
 	}
+
+	return
 }
