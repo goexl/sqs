@@ -7,4 +7,5 @@ const (
 	KeyPeriod        = "MessageRetentionPeriod"
 	KeyVisibility    = "VisibilityTimeout"
 	KeySentTimestamp = "SentTimestamp"
+	KeyReceiveCount  = "ApproximateReceiveCount"
 )

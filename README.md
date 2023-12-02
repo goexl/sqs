@@ -1,4 +1,4 @@
-# 项目
+# Sqs
 [![编译状态](https://github.ruijc.com:20443/api/badges/goexl/gox/status.svg)](https://github.ruijc.com:20443/pangum/pangu)
 [![Golang质量](https://goreportcard.com/badge/github.com/goexl/gox)](https://goreportcard.com/report/github.com/pangum/pangu)
 ![版本](https://img.shields.io/github/go-mod/go-version/goexl/gox)
@@ -9,7 +9,12 @@
 ![最佳语言](https://img.shields.io/github/languages/top/goexl/gox)
 ![星星个数](https://img.shields.io/github/stars/goexl/gox?style=social)
 
-亚马逊云简单消息队列封装
+亚马逊云简单消息队列封装，提供如下功能
+- 简单的`Api`
+  - 使用`Builder`模式构建
+  - 只需要一路操作和自己相关的`接口`
+- 延迟队列
+- 重试
 
 ## 捐助
 

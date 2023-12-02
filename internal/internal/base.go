@@ -1,5 +1,9 @@
 package internal
 
+import (
+	"github.com/goexl/sqs/internal/internal/constant"
+)
+
 type Base struct {
 	Label string
 	Queue string
@@ -8,6 +12,6 @@ type Base struct {
 
 func NewBase() *Base {
 	return &Base{
-		Label: DefaultLabel,
+		Label: constant.DefaultLabel,
 	}
 }

@@ -1,6 +1,7 @@
 package param
 
 import (
+	"context"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
@@ -8,7 +9,6 @@ import (
 	"github.com/goexl/gox"
 	"github.com/goexl/sqs/internal/callback"
 	"github.com/goexl/sqs/internal/constant"
-	"github.com/goexl/sqs/internal/context"
 	"github.com/goexl/sqs/internal/internal"
 )
 
@@ -54,7 +54,7 @@ func NewReceive(
 func (r *Receive) Do(ctx context.Context, url *string) (*sqs.ReceiveMessageOutput, error) {
 	input := new(sqs.ReceiveMessageInput)
 	input.QueueUrl = url
-	input.AttributeNames = append(r.Names, constant.KeySentTimestamp)
+	input.AttributeNames = append(r.Names, constant.KeySentTimestamp, constant.KeyReceiveCount)
 	input.MaxNumberOfMessages = r.Number
 	input.MessageAttributeNames = append(r.Attributes, constant.Runtime)
 	input.VisibilityTimeout = int32(r.Visibility.Seconds())

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	"github.com/goexl/exc"
+	"github.com/goexl/exception"
 	"github.com/goexl/gox/field"
 	"github.com/goexl/sqs/internal/builder"
 	"github.com/goexl/sqs/internal/internal"
@@ -34,7 +34,7 @@ func (c *Client) query(ctx context.Context, base *internal.Base) (url *string, e
 
 	label := base.Label
 	if "" == *gqu.QueueName {
-		err = exc.NewField("必须指定队列名称", field.New("label", base.Label))
+		err = exception.New().Message("必须指定队列名称").Field(field.New("label", base.Label)).Build()
 	} else if cached, ok := c.urls.Load(label); ok {
 		url = cached.(*string)
 	} else if rsp, gue := c.sqs.GetQueueUrl(ctx, gqu); nil != gue {

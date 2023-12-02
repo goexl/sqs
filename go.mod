@@ -5,8 +5,8 @@ go 1.21
 require (
 	github.com/aws/aws-sdk-go-v2 v1.21.0
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.24.5
-	github.com/goexl/exc v0.0.5
-	github.com/goexl/gox v0.3.7
+	github.com/goexl/exception v0.0.1
+	github.com/goexl/gox v0.3.8
 	github.com/goexl/log v0.0.5
 )
 

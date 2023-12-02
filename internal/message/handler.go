@@ -1,7 +1,7 @@
 package message
 
 import (
-	"context"
+	"github.com/goexl/sqs/internal/kernel"
 )
 
 type Handler[T any] interface {
@@ -9,5 +9,5 @@ type Handler[T any] interface {
 	Peek() T
 
 	// Process 处理消息
-	Process(ctx context.Context, msg T, extra *Extra) (status Status, err error)
+	Process(ctx *kernel.Context, msg T, extra *Extra) error
 }

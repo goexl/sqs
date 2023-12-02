@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"strconv"
 	"time"
 
@@ -10,7 +11,8 @@ import (
 	"github.com/goexl/gox/field"
 	"github.com/goexl/log"
 	"github.com/goexl/sqs/internal/constant"
-	"github.com/goexl/sqs/internal/context"
+	"github.com/goexl/sqs/internal/internal/exception"
+	"github.com/goexl/sqs/internal/kernel"
 	"github.com/goexl/sqs/internal/message"
 	"github.com/goexl/sqs/internal/param"
 )
@@ -19,6 +21,7 @@ type Handle struct {
 	logger  log.Logger
 	receive *param.Receive
 	param   *param.Handle
+	counts  map[string]int
 }
 
 func NewHandle(logger log.Logger, receive *param.Receive, param *param.Handle) *Handle {
@@ -26,6 +29,7 @@ func NewHandle(logger log.Logger, receive *param.Receive, param *param.Handle) *
 		logger:  logger,
 		receive: receive,
 		param:   param,
+		counts:  make(map[string]int),
 	}
 }
 
@@ -75,11 +79,10 @@ func (h *Handle) handle(ctx context.Context, url *string, msg *types.Message, ha
 }
 
 func (h *Handle) deal(ctx context.Context, url *string, msg *types.Message, handler message.Handler[any]) (err error) {
-	status := message.StatusUnknown
-	defer h.cleanup(ctx, url, msg, &status, &err)
+	defer h.cleanup(ctx, url, msg, &err)
 
 	for times := 0; times < h.param.Times; times++ {
-		status, err = h.process(ctx, msg, handler)
+		err = h.process(ctx, msg, handler)
 		if nil == err {
 			break
 		} else {
@@ -113,11 +116,7 @@ func (h *Handle) checkDelay(
 	return
 }
 
-func (h *Handle) process(
-	ctx context.Context,
-	msg *types.Message,
-	handler message.Handler[any],
-) (status message.Status, err error) {
+func (h *Handle) process(ctx context.Context, msg *types.Message, handler message.Handler[any]) (err error) {
 	peek := handler.Peek()
 	if de := h.param.Decoder.Decode(msg.Body, peek); nil != de {
 		err = de
@@ -127,32 +126,20 @@ func (h *Handle) process(
 		extra.Handle = msg.ReceiptHandle
 		extra.Attributes = msg.Attributes
 		extra.Messages = msg.MessageAttributes
-
-		status, err = handler.Process(context.WithConsume(ctx), peek, extra)
+		err = handler.Process(kernel.New(ctx), peek, extra)
 	}
 
 	return
 }
 
-func (h *Handle) cleanup(ctx context.Context, url *string, msg *types.Message, status *message.Status, err *error) {
-	if nil != *err {
-		_ = h.changeVisibility(ctx, url, msg, h.param.Interval)
-	} else {
-		h.status(ctx, url, msg, status)
-	}
-}
-
-func (h *Handle) status(ctx context.Context, url *string, msg *types.Message, status *message.Status) {
-	switch *status {
-	case message.StatusSuccess: // 消费成功，删除消息，不然会重复消费
+func (h *Handle) cleanup(ctx context.Context, url *string, msg *types.Message, err *error) {
+	if nil == *err { // 消费成功，删除消息，不然会重复消费
 		_ = h.delete(ctx, url, msg)
-	case message.StatusLater: // 延迟消费，改变消息可见性，使其在指定的时间内再次被消费
-		_ = h.changeVisibility(ctx, url, msg, context.Delay(ctx))
-	case message.StatusUnknown: // 默认状态，改变消息可见性，使前可以立即被消费
-		_ = h.changeVisibility(ctx, url, msg, time.Second)
+	} else if delay, ok := (*err).(*exception.Delay); ok { // 延迟消费，改变消息可见性，使其在指定的时间内再次被消费
+		_ = h.changeVisibility(ctx, url, msg, delay.Duration())
+	} else {
+		_ = h.changeVisibility(ctx, url, msg, time.Duration(h.fibonacci(h.receiveCount(msg)))*time.Second)
 	}
-
-	return
 }
 
 func (h *Handle) changeVisibility(
@@ -171,9 +158,9 @@ func (h *Handle) changeVisibility(
 	}
 	if _, ve := h.param.Visibility(ctx, cvi); nil != err {
 		err = ve
-		h.logger.Info("达到最大重试次数，改变消息可见性等待下一次消费", fields.Add(field.Error(ve))...)
+		h.logger.Warn("达到最大重试次数，改变消息可见性等待下一次消费", fields.Add(field.Error(ve))...)
 	} else {
-		h.logger.Debug("达到最大重试次数，改变消息可见性等待下一次消费", fields...)
+		h.logger.Info("达到最大重试次数，改变消息可见性等待下一次消费", fields...)
 	}
 
 	return
@@ -192,6 +179,7 @@ func (h *Handle) delete(ctx context.Context, url *string, msg *types.Message) (e
 		err = de
 		h.logger.Info("删除消息出错", fields.Add(field.Error(de))...)
 	} else {
+		delete(h.counts, *msg.MessageId) // ! 强制删除缓存
 		h.logger.Debug("删除消息成功", fields...)
 	}
 
@@ -224,6 +212,31 @@ func (h *Handle) getTime(msg *types.Message) (sent time.Time, run time.Time) {
 		sent = time.UnixMilli(milliseconds)
 	} else {
 		sent = now
+	}
+
+	return
+}
+
+func (h *Handle) receiveCount(msg *types.Message) (count int) {
+	id := *msg.MessageId
+	if parsed, pe := strconv.Atoi(msg.Attributes[constant.KeyReceiveCount]); nil != pe {
+		count = parsed
+	} else if cached, ok := h.counts[id]; ok {
+		count = cached
+		h.counts[id] = count + 1
+	} else {
+		count = 1
+		h.counts[id] = count
+	}
+
+	return
+}
+
+func (h *Handle) fibonacci(count int) (result int) {
+	if count < 2 {
+		result = 1
+	} else {
+		result = h.fibonacci(count-1) + h.fibonacci(count-2)
 	}
 
 	return
