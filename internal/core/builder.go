@@ -3,6 +3,7 @@ package core
 import (
 	"time"
 
+	"github.com/goexl/http"
 	"github.com/goexl/log"
 	"github.com/goexl/sqs/internal/param"
 )
@@ -19,6 +20,13 @@ func NewBuilder() *Builder {
 
 func (b *Builder) Logger(logger log.Logger) (client *Builder) {
 	b.param.Logger = logger
+	client = b
+
+	return
+}
+
+func (b *Builder) Http(http *http.Client) (client *Builder) {
+	b.param.Http = http
 	client = b
 
 	return
