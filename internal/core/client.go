@@ -6,7 +6,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
-	"github.com/goexl/sqs/internal/internal"
 	"github.com/goexl/sqs/internal/param"
 )
 
@@ -26,7 +25,7 @@ func NewClient(params *param.Client) (client *Client) {
 	options := sqs.Options{}
 	options.Credentials = aws.NewCredentialsCache(params.Credentials)
 	options.Region = params.Region
-	options.HTTPClient = internal.NewClient(params.Http)
+	options.HTTPClient = params.Http
 	client.sqs = sqs.New(options)
 
 	return
