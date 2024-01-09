@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.29.7
 	github.com/goexl/exception v0.0.1
 	github.com/goexl/gox v0.3.8
-	github.com/goexl/http v0.1.0
+	github.com/goexl/http v0.1.1
 	github.com/goexl/log v0.0.7
 )
 
@@ -18,5 +18,3 @@ require (
 	github.com/go-resty/resty/v2 v2.11.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 )
-
-replace github.com/goexl/http => ../http
