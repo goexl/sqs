@@ -1,4 +1,4 @@
-package core
+package builder
 
 import (
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -8,12 +8,12 @@ import (
 )
 
 type Credential struct {
-	client   *Builder
+	client   *Client
 	param    *param.Client
 	provider aws.CredentialsProvider
 }
 
-func NewCredential(client *Builder, param *param.Client) *Credential {
+func NewCredential(client *Client, param *param.Client) *Credential {
 	return &Credential{
 		client: client,
 		param:  param,
@@ -34,7 +34,7 @@ func (c *Credential) Http(method http.Method, url string) (cdl *Credential) {
 	return
 }
 
-func (c *Credential) Build() (client *Builder) {
+func (c *Credential) Build() (client *Client) {
 	c.param.Provider.Credentials = c.provider
 	client = c.client
 

@@ -1,15 +1,15 @@
 package core
 
 import (
-	"github.com/goexl/sqs/internal/builder"
+	builder2 "github.com/goexl/sqs/internal/internal/builder"
 )
 
-func (c *Client) Receive() *builder.Receive {
-	return builder.NewReceive(c.params, c.sqs.SendMessage, c.sqs.ReceiveMessage, c.url, c.getAttributes)
+func (c *Client) Receive() *builder2.Receive {
+	return builder2.NewReceive(c.params, c.sqs.SendMessage, c.sqs.ReceiveMessage, c.url, c.getAttributes)
 }
 
-func (c *Client) Handle() *builder.Handle {
-	return builder.NewHandle(
+func (c *Client) Handle() *builder2.Handle {
+	return builder2.NewHandle(
 		c.params,
 		c.sqs.SendMessage, c.sqs.ReceiveMessage,
 		c.url, c.sqs.ChangeMessageVisibility, c.sqs.DeleteMessage, c.getAttributes,

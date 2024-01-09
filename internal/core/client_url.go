@@ -6,8 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/goexl/exception"
 	"github.com/goexl/gox/field"
-	"github.com/goexl/sqs/internal/builder"
 	"github.com/goexl/sqs/internal/internal"
+	"github.com/goexl/sqs/internal/internal/builder"
 )
 
 func (c *Client) Url() *builder.Url {
