@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/aws/aws-sdk-go-v2 v1.36.3
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.5
-	github.com/goexl/exception v0.0.3
+	github.com/goexl/exception v0.0.4
 	github.com/goexl/gox v1.9.2
 	github.com/goexl/http v0.3.1
 	github.com/goexl/log v0.1.0
