@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.52.0
 	github.com/goexl/exception v0.0.4
 	github.com/goexl/gox v1.9.3
-	github.com/goexl/http v0.3.4
+	github.com/goexl/http v0.3.5
 	github.com/goexl/log v0.1.0
 )
 
