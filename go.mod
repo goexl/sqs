@@ -3,8 +3,8 @@ module github.com/goexl/sqs
 go 1.27
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.47.5
-	github.com/aws/aws-sdk-go-v2/service/sqs v1.52.8
+	github.com/aws/aws-sdk-go-v2 v1.47.7
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.52.10
 	github.com/goexl/exception v0.0.4
 	github.com/goexl/gox v1.9.3
 	github.com/goexl/http v0.3.5
@@ -12,9 +12,9 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.8 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.8 // indirect
-	github.com/aws/smithy-go v1.28.7 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.10 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.10 // indirect
+	github.com/aws/smithy-go v1.28.8 // indirect
 	github.com/go-resty/resty/v2 v2.17.2 // indirect
 	golang.org/x/net v0.57.0 // indirect
 )
